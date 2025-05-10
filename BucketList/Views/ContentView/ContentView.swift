@@ -33,9 +33,8 @@ struct ContentView: View {
                                     .frame(width: 44, height: 44)
                                     .background(.white)
                                     .clipShape(.circle)
-                                    .onTapGesture {
-                                        viewModel.selectedPlace = location
-                                    }
+                                    .simultaneousGesture(LongPressGesture(minimumDuration: 0.1)
+                                        .onEnded { _ in viewModel.selectedPlace = location })
                             }
                         }
                     }

@@ -18,27 +18,15 @@ extension ContentView {
     class ViewModel {
         private(set) var locations: [Location]
         var selectedPlace: Location?
-        // User defautls. Save a file to load data when open the app and use the view model
-        // It's like a SharedPreferences
-        let savePath = URL.documentsDirectory.appending(path: "SavedPlaces")
+        let storage = LocalStorage<[Location]>(fileName: "SavedPlaces")
         var isUnlocked = false
 
         init() {
-            do {
-                let data = try Data(contentsOf: savePath)
-                locations = try JSONDecoder().decode([Location].self, from: data)
-            } catch {
-                locations = []
-            }
+            locations = storage.load() ?? []
         }
 
         func save() {
-            do {
-                let data = try JSONEncoder().encode(locations)
-                try data.write(to: savePath, options: [.atomic, .completeFileProtection])
-            } catch {
-                print("Unable to save data")
-            }
+            storage.save(locations)
         }
 
         func addLocation(at point: CLLocationCoordinate2D) {
@@ -59,6 +47,7 @@ extension ContentView {
 
         func delete(_ location: Location) {
             locations.removeAll { $0.id == location.id }
+            save()
         }
 
         func authenticate() {
